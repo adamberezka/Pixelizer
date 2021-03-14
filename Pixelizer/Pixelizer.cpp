@@ -5,6 +5,7 @@
 #include "Pixelizer.h"
 #include "bmpread.h"
 #include "windoworganisation.h"
+#include "pixel.h"
 
 #define MAX_LOADSTRING 100
 
@@ -99,8 +100,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance; // Przechowuj dojście wystąpienia w naszej zmiennej globalnej
 
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME ^ WS_MAXIMIZEBOX,
+      CW_USEDEFAULT, 0, 1280, 720, nullptr, nullptr, hInstance, nullptr);
+
+   ::SetMenu(hWnd, NULL);
 
    if (!hWnd)
    {
@@ -129,6 +132,14 @@ BYTE* header = nullptr;
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    static RECT bmpWindowField;
+    static RECT bmpSourceField;
+    static float zoom = 0;
+
+    HBITMAP hBMP = (HBITMAP)LoadImage(NULL, L"C:\\Users\\adamb\\Desktop\\p.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    BITMAP bmp;
+    GetObject(hBMP, sizeof(BITMAP), &bmp);
+
     switch (message)
     {
     case WM_CREATE:
@@ -151,29 +162,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
+    case WM_MOUSEWHEEL:
+        {
+        POINT p;
+        GetCursorPos(&p);
+        
+        RECT rect;
+        GetWindowRect(hWnd, &rect);
+
+        int x = p.x - rect.left;
+        int y = p.y - rect.top;
+        
+        if (x > 300 && x < 1255 && y > 8 && y < 669) {
+            zoom += GET_WHEEL_DELTA_WPARAM(wParam) / 120;
+
+            setRects(bmpWindowField, bmpSourceField, zoom, bmp.bmWidth, bmp.bmHeight);
+            drawImage(hWnd, hBMP, bmpWindowField, bmpSourceField);
+
+        }
+
+        }
+        break;
     case WM_PAINT:
         {
-        /*HBITMAP hBMP = (HBITMAP)LoadImage(NULL, L"C:\\Users\\adamb\\Desktop\\pies.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-
-        PAINTSTRUCT     ps;
-        HDC             hdc;
-        BITMAP          bitmap;
-        HDC             hdcMem;
-        HGDIOBJ         oldBitmap;
-
-        hdc = BeginPaint(hWnd, &ps);
-
-        hdcMem = CreateCompatibleDC(hdc);
-        oldBitmap = SelectObject(hdcMem, hBMP);
-
-        GetObject(hBMP, sizeof(bitmap), &bitmap);
-        SetStretchBltMode(hdc, HALFTONE);
-        StretchBlt(hdc, 0, 0, bitmap.bmWidth/4, bitmap.bmHeight/4, hdcMem, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCCOPY);
         
-        SelectObject(hdcMem, oldBitmap);
-        DeleteDC(hdcMem);
-
-        EndPaint(hWnd, &ps);*/
+        setRects(bmpWindowField, bmpSourceField, zoom, bmp.bmWidth, bmp.bmHeight);
+        drawImage(hWnd, hBMP, bmpWindowField, bmpSourceField);
         }
         break;
     case WM_DESTROY:
