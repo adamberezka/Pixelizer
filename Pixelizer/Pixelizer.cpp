@@ -139,13 +139,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     HBITMAP hBMP = (HBITMAP)LoadImage(NULL, L"C:\\Users\\adamb\\Desktop\\p.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     BITMAP bmp;
     GetObject(hBMP, sizeof(BITMAP), &bmp);
+    initRects(bmpWindowField, bmpSourceField, bmp.bmWidth, bmp.bmHeight);
 
     switch (message)
     {
     case WM_CREATE:
     {
         drawWindow(hWnd);
-        
     }
     break;
     case WM_COMMAND:
@@ -173,15 +173,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         int x = p.x - rect.left;
         int y = p.y - rect.top;
         
-        if (x > 300 && x < 1255 && y > 8 && y < 669) {
+        if (x > 300 && x < 1255 && y > 8 && y < 669 ) {
             zoom += GET_WHEEL_DELTA_WPARAM(wParam) / 120;
+
+            if (zoom < 0) zoom = 0;
 
             setRects(bmpWindowField, bmpSourceField, zoom, bmp.bmWidth, bmp.bmHeight);
             drawImage(hWnd, hBMP, bmpWindowField, bmpSourceField);
-
         }
 
         }
+        break;
+    case WM_ERASEBKGND:
+        return (LRESULT)1;
         break;
     case WM_PAINT:
         {

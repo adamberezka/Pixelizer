@@ -8,55 +8,87 @@ void drawImage(HWND hWnd, HBITMAP hBMP, RECT bmpWindowField, RECT bmpSourceField
     HDC             hdcMem;
     HGDIOBJ         oldBitmap;
 
+    HBITMAP         hBitmapBuffer;
+
+    RECT area = {minX, minY, maxX, maxY};
+
+    InvalidateRect(hWnd, &area, TRUE);
+
     hdc = BeginPaint(hWnd, &ps);
 
     hdcMem = CreateCompatibleDC(hdc);
+    HDC hdcBuffer = CreateCompatibleDC(hdc);
+
+    hBitmapBuffer = CreateCompatibleBitmap(hdc, maxX - minX, maxY - minY);
+
     oldBitmap = SelectObject(hdcMem, hBMP);
 
-    GetObject(hBMP, sizeof(bitmap), &bitmap);
-    SetStretchBltMode(hdc, HALFTONE);
-    StretchBlt(hdc, bmpWindowField.left, bmpWindowField.top, bmpWindowField.right, bmpWindowField.bottom,
-        hdcMem, bmpSourceField.left, bmpSourceField.top, bmpSourceField.right, bmpSourceField.bottom, SRCCOPY);
+    SelectObject(hdcBuffer, hBitmapBuffer);
+    RECT fill = { 0 , 0, width, height };
+    HBRUSH brush = CreateSolidBrush(RGB(255, 255, 255));
+    FillRect(hdcBuffer, &fill, brush);
+    DeleteObject(brush);
 
-    SelectObject(hdcMem, oldBitmap);
+    GetObject(hBMP, sizeof(bitmap), &bitmap);
+
+    SetStretchBltMode(hdcBuffer, HALFTONE);
+    StretchBlt(hdcBuffer, bmpWindowField.left, bmpWindowField.top, bmpWindowField.right - bmpWindowField.left, bmpWindowField.bottom - bmpWindowField.top,
+        hdcMem, bmpSourceField.left, bmpSourceField.top, bmpSourceField.right - bmpSourceField.left, bmpSourceField.bottom - bmpSourceField.top, SRCCOPY);
+    
+    BitBlt(hdc, minX, minY, maxX - minX, maxY - minY, hdcBuffer, 0, 0, SRCCOPY);
+
+    DeleteDC(hdcBuffer);
     DeleteDC(hdcMem);
 
     EndPaint(hWnd, &ps);
 }
 
-void setRects(RECT& bmpWindowField, RECT& bmpSourceField, float zoom, int bmWidth, int bmHeight) {
-
-    const int minX = 300;
-    const int maxX = 955;
-    const int minY = 8;
-    const int maxY = 661;
-
-    const int width = maxX;
-    const int height = maxY;
-
-    if ((float)bmWidth / width > (float)bmHeight /  height) {
-        //dopsauj do X
-        bmpWindowField.left = minX;
-        bmpWindowField.right = maxX;
+void initRects(RECT& bmpWindowField, RECT& bmpSourceField, int bmWidth, int bmHeight) {
+    if ((float)bmWidth / width > (float)bmHeight / height) {
+        //match width
+        bmpWindowField.left = 0;
+        bmpWindowField.right = width;
         float ratio = (float)width / (float)bmWidth;
         int newHeight = ratio * bmHeight;
-        int dif = (height - newHeight);
-        bmpWindowField.top = minY + ((float)dif / 2);
-        bmpWindowField.bottom = newHeight;
-
+        float dif = (float)(height - newHeight) / 2;
+        bmpWindowField.top = 0 + dif;
+        bmpWindowField.bottom = 0 + dif + newHeight;
     } else {
-        // dopasuj do Y
-        bmpWindowField.top = minY;
-        bmpWindowField.bottom = maxY;
+        // match height
+        bmpWindowField.top = 0;
+        bmpWindowField.bottom = height;
         float ratio = (float)height / (float)bmHeight;
         int newWidth = ratio * bmWidth;
-        int dif = (width - newWidth);
-        bmpWindowField.left = minX + ((float)dif / 2);
-        bmpWindowField.right = newWidth;
+        float dif = (float)(width - newWidth) / 2;
+        bmpWindowField.left = 0 + dif;
+        bmpWindowField.right = 0 + dif + newWidth;
     }
+    bmpSourceField.left = 0;
+    bmpSourceField.top = 0;
+    bmpSourceField.right = bmWidth;
+    bmpSourceField.bottom = bmHeight;
 
-    bmpSourceField.left = 0 + bmWidth * zoom * 0.1;
-    bmpSourceField.top = 0 + bmHeight * zoom * 0.1;
-    bmpSourceField.right = bmWidth - bmWidth * zoom * 0.1;
-    bmpSourceField.bottom = bmHeight - bmHeight * zoom * 0.1;
+}
+
+void setRects(RECT& bmpWindowField, RECT& bmpSourceField, float zoom, int bmWidth, int bmHeight) {
+
+    /*if ((float)bmWidth / width > (float)bmHeight /  height) {
+        bmpWindowField.top;
+        bmpWindowField.bottom;
+        //bmpSourceField.left = (zoom * 0.05 * bmWidth);
+
+        //bmpSourceField.right = bmWidth - (zoom * 0.05 * bmWidth);
+    } else {
+        //bmpWindowField.left -= (zoom * 0.05 * newWidth);
+        //bmpWindowField.right += (zoom * 0.05 * newWidth);
+
+        //bmpSourceField.top = (zoom * 0.05 * bmHeight);
+        //bmpSourceField.bottom = bmHeight - (zoom * 0.05 * bmHeight);
+    }*/
+
+    bmpWindowField.left -= (zoom * 0.05 * bmWidth);
+    bmpWindowField.right += (zoom * 0.05 * bmWidth);
+    bmpWindowField.top -= (zoom * 0.05 * bmHeight);
+    bmpWindowField.bottom += (zoom * 0.05 * bmHeight);
+
 }
