@@ -135,11 +135,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     static RECT bmpWindowField;
     static RECT bmpSourceField;
     static float zoom = 0;
+	static HBITMAP hBMP;
+	static POINT displace = { 0, 0 };
+	static POINT vecStart = { 0, 0 };
+	static POINT prevDisplace = { 0, 0 };
+	static bool click = false;
 
-    HBITMAP hBMP = (HBITMAP)LoadImage(NULL, L"C:\\Users\\adamb\\Desktop\\p.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    BITMAP bmp;
-    GetObject(hBMP, sizeof(BITMAP), &bmp);
-    initRects(bmpWindowField, bmpSourceField, bmp.bmWidth, bmp.bmHeight);
+    static BITMAP bmp;
 
     switch (message)
     {
@@ -154,6 +156,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             // Analizuj zaznaczenia menu:
             switch (wmId)
             {
+			case READFILE:
+				hBMP = (HBITMAP)LoadImage(NULL, L"testH.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+				//hBMP = (HBITMAP)LoadImage(NULL, L"testV.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+				GetObject(hBMP, sizeof(BITMAP), &bmp);
+				initRects(bmpWindowField, bmpSourceField, bmp.bmWidth, bmp.bmHeight);
+				drawImage(hWnd, hBMP, bmpWindowField, bmpSourceField, displace);
+				break;
             case IDM_EXIT:
                 DestroyWindow(hWnd);
                 break;
@@ -162,26 +171,33 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
+
+	case WM_LBUTTONDOWN:
+		click = true;
+		GetCursorPos(&vecStart);
+		RECT rect;
+		GetWindowRect(hWnd, &rect);
+		vecStart = { vecStart.x - rect.left , vecStart.y - rect.top };
+		break;
+	case WM_LBUTTONUP:
+		click = false;
+		prevDisplace = displace;
+		break;
+	case WM_MOUSEMOVE:
+		if (click == true) {
+			GetCursorPos(&displace);
+			RECT rect;
+			GetWindowRect(hWnd, &rect);
+			displace = { prevDisplace.x-(displace.x - vecStart.x - rect.left) ,prevDisplace.y -(displace.y - vecStart.y - rect.top)  };
+			drawImage(hWnd, hBMP, bmpWindowField, bmpSourceField, displace);
+		}
+		break;
     case WM_MOUSEWHEEL:
         {
-        POINT p;
-        GetCursorPos(&p);
-        
-        RECT rect;
-        GetWindowRect(hWnd, &rect);
-
-        int x = p.x - rect.left;
-        int y = p.y - rect.top;
-        
-        if (x > 300 && x < 1255 && y > 8 && y < 669 ) {
-            zoom += GET_WHEEL_DELTA_WPARAM(wParam) / 120;
-
-            if (zoom < 0) zoom = 0;
+            zoom = GET_WHEEL_DELTA_WPARAM(wParam) / 120;
 
             setRects(bmpWindowField, bmpSourceField, zoom, bmp.bmWidth, bmp.bmHeight);
-            drawImage(hWnd, hBMP, bmpWindowField, bmpSourceField);
-        }
-
+            drawImage(hWnd, hBMP, bmpWindowField, bmpSourceField, displace);
         }
         break;
     case WM_ERASEBKGND:
@@ -191,7 +207,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
         
         setRects(bmpWindowField, bmpSourceField, zoom, bmp.bmWidth, bmp.bmHeight);
-        drawImage(hWnd, hBMP, bmpWindowField, bmpSourceField);
+        drawImage(hWnd, hBMP, bmpWindowField, bmpSourceField, displace);
         }
         break;
     case WM_DESTROY:

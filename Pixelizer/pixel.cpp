@@ -1,13 +1,12 @@
 #include "pixel.h"
 
-void drawImage(HWND hWnd, HBITMAP hBMP, RECT bmpWindowField, RECT bmpSourceField) {
+void drawImage(HWND hWnd, HBITMAP hBMP, RECT bmpWindowField, RECT bmpSourceField, POINT displacement) {
 
     PAINTSTRUCT     ps;
     HDC             hdc;
     BITMAP          bitmap;
     HDC             hdcMem;
     HGDIOBJ         oldBitmap;
-
     HBITMAP         hBitmapBuffer;
 
     RECT area = {minX, minY, maxX, maxY};
@@ -24,6 +23,7 @@ void drawImage(HWND hWnd, HBITMAP hBMP, RECT bmpWindowField, RECT bmpSourceField
     oldBitmap = SelectObject(hdcMem, hBMP);
 
     SelectObject(hdcBuffer, hBitmapBuffer);
+
     RECT fill = { 0 , 0, width, height };
     HBRUSH brush = CreateSolidBrush(RGB(255, 255, 255));
     FillRect(hdcBuffer, &fill, brush);
@@ -32,7 +32,7 @@ void drawImage(HWND hWnd, HBITMAP hBMP, RECT bmpWindowField, RECT bmpSourceField
     GetObject(hBMP, sizeof(bitmap), &bitmap);
 
     SetStretchBltMode(hdcBuffer, HALFTONE);
-    StretchBlt(hdcBuffer, bmpWindowField.left, bmpWindowField.top, bmpWindowField.right - bmpWindowField.left, bmpWindowField.bottom - bmpWindowField.top,
+    StretchBlt(hdcBuffer, bmpWindowField.left - displacement.x, bmpWindowField.top - displacement.y, bmpWindowField.right - bmpWindowField.left , bmpWindowField.bottom - bmpWindowField.top,
         hdcMem, bmpSourceField.left, bmpSourceField.top, bmpSourceField.right - bmpSourceField.left, bmpSourceField.bottom - bmpSourceField.top, SRCCOPY);
     
     BitBlt(hdc, minX, minY, maxX - minX, maxY - minY, hdcBuffer, 0, 0, SRCCOPY);
@@ -86,9 +86,9 @@ void setRects(RECT& bmpWindowField, RECT& bmpSourceField, float zoom, int bmWidt
         //bmpSourceField.bottom = bmHeight - (zoom * 0.05 * bmHeight);
     }*/
 
-    bmpWindowField.left -= (zoom * 0.05 * bmWidth);
-    bmpWindowField.right += (zoom * 0.05 * bmWidth);
-    bmpWindowField.top -= (zoom * 0.05 * bmHeight);
-    bmpWindowField.bottom += (zoom * 0.05 * bmHeight);
+    bmpWindowField.left -= (zoom * 0.05 * width);
+    bmpWindowField.right += (zoom * 0.05 * width);
+    bmpWindowField.top -= (zoom * 0.05 * height);
+    bmpWindowField.bottom += (zoom * 0.05 * height);
 
 }
