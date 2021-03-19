@@ -1,6 +1,6 @@
 #include "pixel.h"
 
-void drawImage(HWND hWnd, HBITMAP hBMP, RECT bmpWindowField, RECT bmpSourceField, POINT displacement) {
+void drawImage(HWND hWnd, HBITMAP hBMP, RECT bmpWindowField, POINT displacement) {
 
     PAINTSTRUCT     ps;
     HDC             hdc;
@@ -33,7 +33,7 @@ void drawImage(HWND hWnd, HBITMAP hBMP, RECT bmpWindowField, RECT bmpSourceField
 
     SetStretchBltMode(hdcBuffer, HALFTONE);
     StretchBlt(hdcBuffer, bmpWindowField.left - displacement.x, bmpWindowField.top - displacement.y, bmpWindowField.right - bmpWindowField.left , bmpWindowField.bottom - bmpWindowField.top,
-        hdcMem, bmpSourceField.left, bmpSourceField.top, bmpSourceField.right - bmpSourceField.left, bmpSourceField.bottom - bmpSourceField.top, SRCCOPY);
+        hdcMem, 0, 0, bitmap.bmWidth, bitmap.bmHeight, SRCCOPY);
     
     BitBlt(hdc, minX, minY, maxX - minX, maxY - minY, hdcBuffer, 0, 0, SRCCOPY);
 
@@ -43,7 +43,7 @@ void drawImage(HWND hWnd, HBITMAP hBMP, RECT bmpWindowField, RECT bmpSourceField
     EndPaint(hWnd, &ps);
 }
 
-void initRects(RECT& bmpWindowField, RECT& bmpSourceField, int bmWidth, int bmHeight) {
+void initRects(RECT& bmpWindowField, int bmWidth, int bmHeight) {
     if ((float)bmWidth / width > (float)bmHeight / height) {
         //match width
         bmpWindowField.left = 0;
@@ -63,32 +63,22 @@ void initRects(RECT& bmpWindowField, RECT& bmpSourceField, int bmWidth, int bmHe
         bmpWindowField.left = 0 + dif;
         bmpWindowField.right = 0 + dif + newWidth;
     }
-    bmpSourceField.left = 0;
-    bmpSourceField.top = 0;
-    bmpSourceField.right = bmWidth;
-    bmpSourceField.bottom = bmHeight;
-
 }
 
 void setRects(RECT& bmpWindowField, RECT& bmpSourceField, float zoom, int bmWidth, int bmHeight) {
-
-    /*if ((float)bmWidth / width > (float)bmHeight /  height) {
-        bmpWindowField.top;
-        bmpWindowField.bottom;
-        //bmpSourceField.left = (zoom * 0.05 * bmWidth);
-
-        //bmpSourceField.right = bmWidth - (zoom * 0.05 * bmWidth);
+    if ((float)bmWidth / width > (float)bmHeight /  height) {
+		float ratio = (float)width / (float)bmWidth;
+		int newHeight = ratio * bmHeight;
+		bmpWindowField.left -= (zoom * 0.05 * width);
+		bmpWindowField.right += (zoom * 0.05 * width);
+		bmpWindowField.top -= (zoom * 0.05 * newHeight);
+		bmpWindowField.bottom += (zoom * 0.05 * newHeight);
     } else {
-        //bmpWindowField.left -= (zoom * 0.05 * newWidth);
-        //bmpWindowField.right += (zoom * 0.05 * newWidth);
-
-        //bmpSourceField.top = (zoom * 0.05 * bmHeight);
-        //bmpSourceField.bottom = bmHeight - (zoom * 0.05 * bmHeight);
-    }*/
-
-    bmpWindowField.left -= (zoom * 0.05 * width);
-    bmpWindowField.right += (zoom * 0.05 * width);
-    bmpWindowField.top -= (zoom * 0.05 * height);
-    bmpWindowField.bottom += (zoom * 0.05 * height);
-
+		float ratio = (float)height / (float)bmHeight;
+		int newWidth = ratio * bmWidth;
+		bmpWindowField.left -= (zoom * 0.05 * newWidth);
+		bmpWindowField.right += (zoom * 0.05 * newWidth);
+		bmpWindowField.top -= (zoom * 0.05 * height);
+		bmpWindowField.bottom += (zoom * 0.05 * height);
+    }
 }

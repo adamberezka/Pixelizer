@@ -160,8 +160,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				hBMP = (HBITMAP)LoadImage(NULL, L"testH.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 				//hBMP = (HBITMAP)LoadImage(NULL, L"testV.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 				GetObject(hBMP, sizeof(BITMAP), &bmp);
-				initRects(bmpWindowField, bmpSourceField, bmp.bmWidth, bmp.bmHeight);
-				drawImage(hWnd, hBMP, bmpWindowField, bmpSourceField, displace);
+				initRects(bmpWindowField, bmp.bmWidth, bmp.bmHeight);
+				drawImage(hWnd, hBMP, bmpWindowField, displace);
 				break;
             case IDM_EXIT:
                 DestroyWindow(hWnd);
@@ -189,7 +189,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			RECT rect;
 			GetWindowRect(hWnd, &rect);
 			displace = { prevDisplace.x-(displace.x - vecStart.x - rect.left) ,prevDisplace.y -(displace.y - vecStart.y - rect.top)  };
-			drawImage(hWnd, hBMP, bmpWindowField, bmpSourceField, displace);
+			drawImage(hWnd, hBMP, bmpWindowField, displace);
 		}
 		break;
     case WM_MOUSEWHEEL:
@@ -197,7 +197,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             zoom = GET_WHEEL_DELTA_WPARAM(wParam) / 120;
 
             setRects(bmpWindowField, bmpSourceField, zoom, bmp.bmWidth, bmp.bmHeight);
-            drawImage(hWnd, hBMP, bmpWindowField, bmpSourceField, displace);
+            drawImage(hWnd, hBMP, bmpWindowField, displace);
         }
         break;
     case WM_ERASEBKGND:
@@ -207,7 +207,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
         
         setRects(bmpWindowField, bmpSourceField, zoom, bmp.bmWidth, bmp.bmHeight);
-        drawImage(hWnd, hBMP, bmpWindowField, bmpSourceField, displace);
+        drawImage(hWnd, hBMP, bmpWindowField, displace);
         }
         break;
     case WM_DESTROY:

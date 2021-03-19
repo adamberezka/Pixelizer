@@ -8,8 +8,8 @@ const int maxY = 670;
 const int width = maxX - minX;
 const int height = maxY - minY;
 
-void drawImage(HWND hWnd, HBITMAP hBMP, RECT bmpWindowField, RECT bmpSourceField, POINT displacement);
+void drawImage(HWND hWnd, HBITMAP hBMP, RECT bmpWindowField,  POINT displacement);
 
 void setRects(RECT& bmpWindowField, RECT& bmpSourceField, float zoom, int bmWidth, int bmHeight);
 
-void initRects(RECT& bmpWindowField, RECT& bmpSourceField, int bmWidth, int bmHeight);
+void initRects(RECT& bmpWindowField, int bmWidth, int bmHeight);
