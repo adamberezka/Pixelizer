@@ -51,8 +51,8 @@ void initRects(RECT& bmpWindowField, int bmWidth, int bmHeight) {
         float ratio = (float)width / (float)bmWidth;
         int newHeight = ratio * bmHeight;
         float dif = (float)(height - newHeight) / 2;
-        bmpWindowField.top = 0 + dif;
-        bmpWindowField.bottom = 0 + dif + newHeight;
+        bmpWindowField.top = dif;
+        bmpWindowField.bottom = dif + newHeight;
     } else {
         // match height
         bmpWindowField.top = 0;
@@ -60,19 +60,20 @@ void initRects(RECT& bmpWindowField, int bmWidth, int bmHeight) {
         float ratio = (float)height / (float)bmHeight;
         int newWidth = ratio * bmWidth;
         float dif = (float)(width - newWidth) / 2;
-        bmpWindowField.left = 0 + dif;
-        bmpWindowField.right = 0 + dif + newWidth;
+        bmpWindowField.left = dif;
+        bmpWindowField.right = dif + newWidth;
     }
 }
 
 void setRects(RECT& bmpWindowField, RECT& bmpSourceField, float zoom, int bmWidth, int bmHeight) {
+
     if ((float)bmWidth / width > (float)bmHeight /  height) {
 		float ratio = (float)width / (float)bmWidth;
 		int newHeight = ratio * bmHeight;
-		bmpWindowField.left -= (zoom * 0.05 * width);
-		bmpWindowField.right += (zoom * 0.05 * width);
-		bmpWindowField.top -= (zoom * 0.05 * newHeight);
-		bmpWindowField.bottom += (zoom * 0.05 * newHeight);
+		bmpWindowField.left = -float(zoom * width * 0.05);
+		bmpWindowField.right = width + float(zoom * width * 0.05);
+		bmpWindowField.top = -float(zoom * newHeight * 0.05);
+		bmpWindowField.bottom = newHeight + float(zoom * newHeight * 0.05);
     } else {
 		float ratio = (float)height / (float)bmHeight;
 		int newWidth = ratio * bmWidth;

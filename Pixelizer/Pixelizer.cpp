@@ -171,7 +171,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
-
 	case WM_LBUTTONDOWN:
 		click = true;
 		GetCursorPos(&vecStart);
@@ -194,7 +193,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
     case WM_MOUSEWHEEL:
         {
-            zoom = GET_WHEEL_DELTA_WPARAM(wParam) / 120;
+            zoom += GET_WHEEL_DELTA_WPARAM(wParam) / 120;
 
             setRects(bmpWindowField, bmpSourceField, zoom, bmp.bmWidth, bmp.bmHeight);
             drawImage(hWnd, hBMP, bmpWindowField, displace);
@@ -205,8 +204,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_PAINT:
         {
-        
-        setRects(bmpWindowField, bmpSourceField, zoom, bmp.bmWidth, bmp.bmHeight);
+        //setRects(bmpWindowField, bmpSourceField, zoom, bmp.bmWidth, bmp.bmHeight);
         drawImage(hWnd, hBMP, bmpWindowField, displace);
         }
         break;
