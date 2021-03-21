@@ -11,6 +11,6 @@ void drawWindow(HWND hWnd) {
 
 
     CreateWindowW(L"Button", L"", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 10, 0, 280, 670, hWnd, (HMENU)GROUP, nullptr, nullptr);
-    CreateWindowW(L"Button", L"Wczytaj plik", WS_CHILD | WS_VISIBLE, 20, 15, 260, 25, hWnd, (HMENU)READFILE, nullptr, nullptr);
-    CreateWindowW(L"Button", L"Zapisz plik", WS_CHILD | WS_VISIBLE, 20, 635, 260, 25, hWnd, (HMENU)SAVEFILE, nullptr, nullptr);
+    CreateWindowW(L"Button", L"Read file", WS_CHILD | WS_VISIBLE, 20, 15, 260, 25, hWnd, (HMENU)READFILE, nullptr, nullptr);
+    CreateWindowW(L"Button", L"Save file", WS_CHILD | WS_VISIBLE, 20, 635, 260, 25, hWnd, (HMENU)SAVEFILE, nullptr, nullptr);
 }

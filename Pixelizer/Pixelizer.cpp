@@ -194,7 +194,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_MOUSEWHEEL:
         {
             zoom += GET_WHEEL_DELTA_WPARAM(wParam) / 120;
-
+			if (zoom < 0) zoom = 0;
             setRects(bmpWindowField, bmpSourceField, zoom, bmp.bmWidth, bmp.bmHeight);
             drawImage(hWnd, hBMP, bmpWindowField, displace);
         }
