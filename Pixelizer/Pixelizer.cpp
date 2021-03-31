@@ -157,11 +157,38 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             switch (wmId)
             {
 			case READFILE:
+			{
 				hBMP = (HBITMAP)LoadImage(NULL, L"testH.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 				//hBMP = (HBITMAP)LoadImage(NULL, L"testV.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+				
 				GetObject(hBMP, sizeof(BITMAP), &bmp);
 				initRects(bmpWindowField, bmp.bmWidth, bmp.bmHeight);
 				drawImage(hWnd, hBMP, bmpWindowField, displace);
+			}
+				break;
+			case SAVEFILE:
+			{
+				HDC hDC = GetDC(NULL);
+				struct {
+					BITMAPINFOHEADER bmiHeader;
+					RGBQUAD bmiColors[256];
+				} bmi;
+				memset(&bmi, 0, sizeof(bmi));
+				bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+
+				GetDIBits(hDC, hBMP, 0, bmp.bmHeight, NULL, (BITMAPINFO*)&bmi, DIB_RGB_COLORS);
+				LPVOID bits = new char[bmi.bmiHeader.biSizeImage];
+				GetDIBits(hDC, hBMP, 0, bmp.bmHeight, bits, (BITMAPINFO*)&bmi, DIB_RGB_COLORS);
+
+				for (int i = 0; i < bmi.bmiHeader.biSizeImage; i += 3) {
+					((char*)bits)[i] = 255;
+				}
+
+				::SetDIBits(hDC, hBMP, 0, bmp.bmHeight, (LPVOID)bits, (BITMAPINFO*)&bmi, DIB_RGB_COLORS);
+				delete[] bits;
+				ReleaseDC(NULL, hDC);
+				drawImage(hWnd, hBMP, bmpWindowField, displace);
+			}
 				break;
             case IDM_EXIT:
                 DestroyWindow(hWnd);
