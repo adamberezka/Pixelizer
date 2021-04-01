@@ -139,7 +139,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="bmpread.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pixel.h" />
     <ClInclude Include="Pixelizer.h" />
@@ -148,7 +147,6 @@
     <ClInclude Include="windoworganisation.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="bmpread.cpp" />
     <ClCompile Include="pixel.cpp" />
     <ClCompile Include="Pixelizer.cpp" />
     <ClCompile Include="windoworganisation.cpp" />

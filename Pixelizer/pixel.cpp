@@ -84,3 +84,128 @@ void setRects(RECT& bmpWindowField, RECT& bmpSourceField, float zoom, int bmWidt
 		bmpWindowField.bottom = height + float(zoom * height * 0.05);
     }
 }
+
+PWSTR openFile() {
+	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+
+	PWSTR pszFilePath = { 0 };
+
+	COMDLG_FILTERSPEC fileTypes[] =
+	{
+		{ L"Bitmaps", L"*.bmp" },
+	};
+
+	if (SUCCEEDED(hr))
+	{
+		IFileOpenDialog* pFileOpen;
+
+		// Create the FileOpenDialog object.
+		hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL,
+			IID_IFileOpenDialog, reinterpret_cast<void**>(&pFileOpen));
+
+		hr = pFileOpen->SetFileTypes(ARRAYSIZE(fileTypes), fileTypes);
+		if (SUCCEEDED(hr))
+		{
+			// Set the selected file type index to Word Docs for this example.
+			hr = pFileOpen->SetFileTypeIndex(1);
+			if (SUCCEEDED(hr))
+			{
+				// Set the default extension to be ".bmp" file.
+				hr = pFileOpen->SetDefaultExtension(L"bmp");
+				if (SUCCEEDED(hr))
+				{
+					if (SUCCEEDED(hr))
+					{
+						// Show the Open dialog box.
+						hr = pFileOpen->Show(NULL);
+
+						// Get the file name from the dialog box.
+						if (SUCCEEDED(hr))
+						{
+							IShellItem* pItem;
+							hr = pFileOpen->GetResult(&pItem);
+							if (SUCCEEDED(hr))
+							{
+								hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+
+								// Display the file name to the user.
+								if (SUCCEEDED(hr))
+								{
+									CoUninitialize();
+									return pszFilePath;
+								}
+								pItem->Release();
+							}
+						}
+						pFileOpen->Release();
+					}
+					
+				}
+			}
+		}
+	}
+	CoUninitialize();
+	return NULL;
+}
+
+PWSTR saveFile() {
+	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+
+	PWSTR pszFilePath = { 0 };
+
+	COMDLG_FILTERSPEC fileTypes[] =
+	{
+		{ L"Bitmaps", L"*.bmp" },
+	};
+
+	if (SUCCEEDED(hr))
+	{
+		IFileSaveDialog* pFileSave;
+
+		// Create the FileOpenDialog object.
+		hr = CoCreateInstance(CLSID_FileSaveDialog, NULL, CLSCTX_ALL,
+			IID_IFileSaveDialog, reinterpret_cast<void**>(&pFileSave));
+
+		hr = pFileSave->SetFileTypes(ARRAYSIZE(fileTypes), fileTypes);
+		if (SUCCEEDED(hr))
+		{
+			// Set the selected file type index to Word Docs for this example.
+			hr = pFileSave->SetFileTypeIndex(1);
+			if (SUCCEEDED(hr))
+			{
+				// Set the default extension to be ".bmp" file.
+				hr = pFileSave->SetDefaultExtension(L"bmp");
+				if (SUCCEEDED(hr))
+				{
+					if (SUCCEEDED(hr))
+					{
+						// Show the Open dialog box.
+						hr = pFileSave->Show(NULL);
+
+						// Get the file name from the dialog box.
+						if (SUCCEEDED(hr))
+						{
+							IShellItem* pItem;
+							hr = pFileSave->GetResult(&pItem);
+							if (SUCCEEDED(hr))
+							{
+								hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+
+								// Display the file name to the user.
+								if (SUCCEEDED(hr))
+								{
+									MessageBoxW(NULL, pszFilePath, L"File Path", MB_OK);
+									CoTaskMemFree(pszFilePath);
+								}
+								pItem->Release();
+							}
+						}
+						pFileSave->Release();
+					}
+				}
+			}
+		}
+	}
+	CoUninitialize();
+	return NULL;
+}

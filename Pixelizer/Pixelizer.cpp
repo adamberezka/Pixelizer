@@ -3,7 +3,6 @@
 
 #include "framework.h"
 #include "Pixelizer.h"
-#include "bmpread.h"
 #include "windoworganisation.h"
 #include "pixel.h"
 
@@ -158,16 +157,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             {
 			case READFILE:
 			{
-				hBMP = (HBITMAP)LoadImage(NULL, L"testH.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+				PWSTR fileName = openFile();
+				//hBMP = (HBITMAP)LoadImage(NULL, L"testH.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 				//hBMP = (HBITMAP)LoadImage(NULL, L"testV.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-				
-				GetObject(hBMP, sizeof(BITMAP), &bmp);
-				initRects(bmpWindowField, bmp.bmWidth, bmp.bmHeight);
-				drawImage(hWnd, hBMP, bmpWindowField, displace);
+				if (fileName != NULL) {
+					hBMP = (HBITMAP)LoadImage(NULL, fileName, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+					if (hBMP != NULL) {
+						GetObject(hBMP, sizeof(BITMAP), &bmp);
+						initRects(bmpWindowField, bmp.bmWidth, bmp.bmHeight);
+						drawImage(hWnd, hBMP, bmpWindowField, displace);
+					} else {
+						MessageBox(hWnd, (LPCWSTR)GetLastError(), L"Error", MB_ICONERROR | MB_OK);
+					}
+				}
 			}
 				break;
 			case SAVEFILE:
 			{
+				saveFile();
 				HDC hDC = GetDC(NULL);
 				struct {
 					BITMAPINFOHEADER bmiHeader;
